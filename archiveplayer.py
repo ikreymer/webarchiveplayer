@@ -41,7 +41,7 @@ framed_replay: true
         if not self.coll_name:
             self.coll_name = 'replay'
 
-        self.archive_dir += os.path.sep        
+        self.archive_dir += os.path.sep
 
         self.cdx_file = os.path.join(archive_dir, self.CDX_NAME)
         self.update_cdx(self.cdx_file, archive_dir)
@@ -110,18 +110,19 @@ framed_replay: true
 class TopFrame(wx.Frame):
     def createMenu(self):
         self.menu_bar  = wx.MenuBar()
-        self.help_menu = wx.Menu()    
-       
+        self.help_menu = wx.Menu()
+
         #self.help_menu.Append(wx.ID_ABOUT,   menuTitle_about)
         self.help_menu.Append(wx.ID_EXIT,   "&QUIT")
-        #self.menu_bar.Append(self.help_menu, "File")
-        
+        self.menu_bar.Append(self.help_menu, "File")
+
         #self.Bind(wx.EVT_MENU, self.displayAboutMenu, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
         self.SetMenuBar(self.menu_bar)
 
     def quit(self, cmd):
-        sys.exit(0)
+        self.Close()
+        #sys.exit(0)
 
 
 #=================================================================
@@ -132,11 +133,11 @@ def select_dir(top=None):
         path = dialog.GetPath()
     else:
         path = None
-    
+
     #dialog.Hide()
     #dialog.Close()
     dialog.Destroy()
-    
+
     return path
 
 
