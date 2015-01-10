@@ -4,12 +4,20 @@ from pywb.webapp.pywb_init import create_wb_router
 import os
 import sys
 import yaml
+from multiprocessing import Process
+
 from datetime import datetime
 
 from pywb.warc import cdxindexer
 from argparse import ArgumentParser
 
 import webbrowser
+import wx
+
+from gunicorn.app.base import Application, Config
+import gunicorn
+from gunicorn import glogging
+from gunicorn.workers import sync
 
 
 #=================================================================
@@ -25,10 +33,15 @@ archive_paths: {archive_path}
 port: 8090
 
 framed_replay: true
-    """
+"""
 
     def __init__(self, archive_dir):
         self.archive_dir = archive_dir.rstrip(os.path.sep)
+        self.coll_name = os.path.basename(self.archive_dir)
+        if not self.coll_name:
+            self.coll_name = 'replay'
+
+        self.archive_dir += os.path.sep        
 
         self.cdx_file = os.path.join(archive_dir, self.CDX_NAME)
         self.update_cdx(self.cdx_file, archive_dir)
@@ -47,13 +60,13 @@ framed_replay: true
         except:
             contents = self.DEFAULT_CONFIG_FILE
 
-        coll_name = os.path.basename(self.archive_dir)
-        if not coll_name:
-            coll_name = 'replay'
+        #coll_name = os.path.basename(self.archive_dir)
+        #if not coll_name:
+        #    coll_name = 'replay'
 
         contents = contents.format(index_paths=self.archive_dir,
                                    archive_path=self.archive_dir,
-                                   coll_name=coll_name)
+                                   coll_name=self.coll_name)
 
         print('pywb config')
         print('===========')
@@ -94,17 +107,56 @@ framed_replay: true
 
 
 #=================================================================
-def select_dir():
-    import wx
-    app = wx.App(None)
-    style = wx.DD_DIR_MUST_EXIST
-    dialog = wx.DirDialog(None, 'Please select a directory containing archive files (WARC or ARC)', style=style)
+class TopFrame(wx.Frame):
+    def createMenu(self):
+        self.menu_bar  = wx.MenuBar()
+        self.help_menu = wx.Menu()    
+       
+        #self.help_menu.Append(wx.ID_ABOUT,   menuTitle_about)
+        self.help_menu.Append(wx.ID_EXIT,   "&QUIT")
+        #self.menu_bar.Append(self.help_menu, "File")
+        
+        #self.Bind(wx.EVT_MENU, self.displayAboutMenu, id=wx.ID_ABOUT)
+        self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
+        self.SetMenuBar(self.menu_bar)
+
+    def quit(self, cmd):
+        sys.exit(0)
+
+
+#=================================================================
+def select_dir(top=None):
+    style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST# | wx.DIALOG_NO_PARENT
+    dialog = wx.DirDialog(top, 'Please select a directory containing archive files (WARC or ARC)', style=style)
     if dialog.ShowModal() == wx.ID_OK:
         path = dialog.GetPath()
     else:
         path = None
+    
+    #dialog.Hide()
+    #dialog.Close()
     dialog.Destroy()
+    
     return path
+
+
+#=================================================================
+class StandaloneApplication(Application):
+
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super(StandaloneApplication, self).__init__()
+
+    def load_config(self):
+        config = dict([(key, value) for key, value in self.options.iteritems()
+                       if key in self.cfg.settings and value is not None])
+        for key, value in config.iteritems():
+            self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
 
 #=================================================================
 def main():
@@ -113,19 +165,37 @@ def main():
 
     r = parser.parse_args()
 
+    app = wx.App()
+    frame = TopFrame(None)
+    frame.createMenu()
+
     if r.archivedir:
         dir_name = r.archivedir
     else:
-        dir_name = select_dir()
-        dir_name = dir_name.encode('utf-8')
+        dir_name = select_dir(frame)
+        if dir_name:
+            dir_name = dir_name.encode('utf-8')
 
     if not dir_name:
         return
 
     archiveplayer = ArchivePlayer(dir_name)
     webbrowser.open('http://localhost:8090/')
-    start_wsgi_server(archiveplayer.application, 'Wayback')
 
+    def run_server():
+        opts = dict(bind='127.0.0.1:8090', workers=6)
+        app = StandaloneApplication(archiveplayer.application, opts)
+        app.run()
+        #start_wsgi_server(archiveplayer.application, 'Wayback')
+
+    server = Process(target=run_server)
+    server.daemon = True
+    server.start()
+
+    frame.Show()
+    #app.SetTopWindow(frame)
+    app.MainLoop()
+    
 
 if __name__ == "__main__":
     main()
