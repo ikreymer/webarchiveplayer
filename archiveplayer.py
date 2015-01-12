@@ -2,9 +2,11 @@ from pywb.framework.wsgi_wrappers import init_app, start_wsgi_server
 from pywb.webapp.pywb_init import create_wb_router
 
 import os
+import shutil
 import sys
 import yaml
 from multiprocessing import Process
+from threading import Thread
 
 from datetime import datetime
 
@@ -14,10 +16,7 @@ from argparse import ArgumentParser
 import webbrowser
 import wx
 
-from gunicorn.app.base import Application, Config
-import gunicorn
-from gunicorn import glogging
-from gunicorn.workers import sync
+from waitress import serve
 
 
 #=================================================================
@@ -94,7 +93,8 @@ framed_replay: true
             os.remove(temp_cdx)
             return False
         else:
-            os.rename(temp_cdx, output_cdx)
+            #os.rename(temp_cdx, output_cdx)
+            shutil.move(temp_cdx, output_cdx)
             return True
 
     @staticmethod
@@ -142,21 +142,9 @@ def select_dir(top=None):
 
 
 #=================================================================
-class StandaloneApplication(Application):
-
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super(StandaloneApplication, self).__init__()
-
-    def load_config(self):
-        config = dict([(key, value) for key, value in self.options.iteritems()
-                       if key in self.cfg.settings and value is not None])
-        for key, value in config.iteritems():
-            self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
+def run_server(app):
+    serve(app, port=8090, threads=10)
+    #start_wsgi_server(archiveplayer.application, 'Wayback')
 
 
 #=================================================================
@@ -183,13 +171,8 @@ def main():
     archiveplayer = ArchivePlayer(dir_name)
     webbrowser.open('http://localhost:8090/')
 
-    def run_server():
-        opts = dict(bind='127.0.0.1:8090', workers=6)
-        app = StandaloneApplication(archiveplayer.application, opts)
-        app.run()
-        #start_wsgi_server(archiveplayer.application, 'Wayback')
-
-    server = Process(target=run_server)
+    #server = Process(target=run_server, args=(archiveplayer.application,))
+    server = Thread(target=run_server, args=(archiveplayer.application,))
     server.daemon = True
     server.start()
 
