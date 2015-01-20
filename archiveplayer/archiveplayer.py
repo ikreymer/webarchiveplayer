@@ -26,6 +26,7 @@ import wx
 from waitress import serve
 
 #=================================================================
+PLAYER_URL = 'http://localhost:8090/replay/'
 
 #=================================================================
 class ArchivePlayer(object):
@@ -111,7 +112,7 @@ framed_replay: true
                                          append_post=True,
                                          include_all=True,
                                          writer_cls=PageDetectSortedWriter)
-
+                output_cdx.flush()
         except Exception as exc:
             import traceback
             err_details = traceback.format_exc(exc)
@@ -158,6 +159,9 @@ class TopFrame(wx.Frame):
         self.title = wx.StaticText(self, label='Web Archive Player v1.0')
         font = wx.Font(24, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
+
+        label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
+        link = wx.HyperlinkCtrl(self, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
         
         self.archiveplayer = None
 
@@ -212,13 +216,12 @@ def main():
         return
 
     J2TemplateView.env_globals['packages'].append('archiveplayer')
-    print(J2TemplateView.env_globals)
 
     global archiveplayer
     archiveplayer = ArchivePlayer(filename)
     frame.archiveplayer = archiveplayer
 
-    webbrowser.open('http://localhost:8090/replay/')
+    webbrowser.open(PLAYER_URL)
 
     server = Thread(target=run_server, args=(archiveplayer.application,))
     server.daemon = True

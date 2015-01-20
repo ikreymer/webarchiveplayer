@@ -1,6 +1,23 @@
 <html>
+<head>
+<style>
+body {
+    font-family: sans-serif;
+}
+li {
+    margin-bottom: 12px;
+}
+form {
+    display: inline;
+}
+input[type=text] {
+    width: 400px;
+    font-size: 18px;
+}
+</style>
+</head>
 <body>
-<h2>Web Archive Player 1.0</h2>
+<h2>Web Archive Player</h2>
 
 <p>Replaying Archive File: <b>{{ archivefile }}</b></p>
 
@@ -8,22 +25,22 @@
 <p>The following HTML pages were found in this archive: </p>
 
 {% if pagelist is sequence %}
-<table border="1">
+<ol>
 {% for page in pagelist %}
-<td>
+<li>
 <a href="{{ prefix + page.ts }}/{{ page.url }}" title="{{ page.url }}">{{ page.title if page.title else page.url }}</a>
-</td>
+</li>
 {% endfor %}
+</ol>
 {% else %}
 <i>No web pages detected. However, this does not mean the archive is empty -- only that a page list could not be found. If you know the url or beginning of url,
 you may search for it below to see other content.</i>
 {% endif %}
-</table>
 
 <h3>Search by URL</h3>
 <p>Enter an exact url or prefix to search the archive. (To specify a prefix, add a '*' at the end, eg: http://example.com/*)</p>
 <form onsubmit="url = document.getElementById('search').value; if (url != '') { document.location.href = '{{ wbrequest.wb_prefix }}' + '*/' + url; } return false;">
-<input id="search" name="search" placeholder="Enter url to search" width="100"/>
+<input id="search" type="text" name="search" placeholder="Enter url to search"/>
 <button type="submit">Search</button>
 </form>
 
