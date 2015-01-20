@@ -6,6 +6,13 @@ from setuptools.command.test import test as TestCommand
 import glob
 
 
+# Fix for TypeError: 'NoneType' object is not callable" error
+# when running 'python setup.py test'
+try:
+    import multiprocessing
+except ImportError:
+    pass
+
 setup(
     name='webarchiveplayer',
     version='1.0',
@@ -24,8 +31,11 @@ setup(
         'archiveplayer': ['templates/*'],
         },
     install_requires=[
-        'pywb',
+        'pywb==0.7.6',
        ],
+    dependency_links=[
+        'git+https://github.com/ikreymer/pywb.git@develop#egg=pywb-0.7.6'
+    ],
     tests_require=[
         'pytest',
         'WebTest',
