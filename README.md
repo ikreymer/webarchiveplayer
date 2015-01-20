@@ -18,7 +18,7 @@ Once downloaded, no internet connection is necessary in order to browse the arch
 
    You can use https://webrecorder.io to record pages as you browse and then download the WARC file.
 
-4. A browser will open to http://localhost:8090/, listing all the pages in the archive.
+4. A browser will open to [http://localhost:8090/replay/](http://localhost:8090/replay/) listing all the pages in the archive.
 
 5. Click on any page listed to view the replay. Or, enter a url to search the full archive.
 
