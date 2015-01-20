@@ -1,0 +1,4 @@
+from archiveplayer.archiveplayer import main
+
+if __name__ == "__main__":
+    main()
