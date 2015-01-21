@@ -4,7 +4,7 @@ WebArchivePlayer is a brand new desktop tool which provides a point-and-click wr
 The player allows users to browse web archive files, such as those created via https://webrecorder.io locally on their desktop.
 Once downloaded, no internet connection is necessary in order to browse the archive.
 
-## Usage (Windows and OS X)
+## Usage (Windows and OS X Apps)
 
 1. Download the latest version:
 
@@ -24,11 +24,12 @@ Once downloaded, no internet connection is necessary in order to browse the arch
 
 6. To exit, simply close the WebArchivePlayer window.
 
-## Usage for other platforms (or build from source)
+
+## Usage for All Platforms -- Running from python source
 
 Currently, executable versions are available only for OS X and Windows.
 
-However, the player should work on any system that has Python 2.7, but requires a bit more setup.
+However, the player should work on any system that has Python 2.7, but requires a little bit more setup.
 
 On other systems (or to build from source):
 
@@ -36,9 +37,27 @@ On other systems (or to build from source):
 
 2. Run `python setup.py install`
 
-3. Run `python app/webarchiveplayer.py`
+3. Run `webarchiveplayer [/path/to/warc_or_arc]`
 
-4. If everything works as expected, continue from step #3 above.
+
+### GUI Mode
+
+If a W/ARC file argument is omitted, the player will attempt to start in GUI mode and show a File Open dialog.
+
+However, in order to run in GUI mode, the wxPython toolkit will also need to be installed seperately.
+
+Refer to instructions at [wxPython Download page](http://wxpython.org/download.php) for your platform.
+
+### CLI Mode
+
+If a W/ARC file argument is passed to the player, eg:
+
+`webarchiveplayer /path/to/warcfile.warc.gz`
+
+The player will select that file and skip the open dialog. Installtion of wxPython is not required when specifiyng
+the WARC explicitly.
+
+The OS X and Windows applications also support specifying the file via command line.
 
 
 ## How it Works

@@ -21,7 +21,14 @@ from pywb.warc import cdxindexer
 from argparse import ArgumentParser
 
 import webbrowser
-import wx
+
+no_wx = False
+try:
+    import wx
+    wxFrame = wx.Frame
+except:
+    no_wx = True
+    wxFrame = object
 
 from waitress import serve
 
@@ -143,7 +150,7 @@ class ReplayHandler(WBHandler):
 
 
 #=================================================================
-class TopFrame(wx.Frame):
+class TopFrame(wxFrame):
     def init_controls(self):
         self.menu_bar  = wx.MenuBar()
         self.help_menu = wx.Menu()
@@ -198,16 +205,33 @@ def run_server(app):
 def main():
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefile', nargs='?')
+    parser.add_argument('--headless', action='store_true',
+                        help="Run without a GUI (defaults to true if wxPython not installed)")
 
     r = parser.parse_args()
 
-    app = wx.App()
-    frame = TopFrame(None)
-    frame.init_controls()
+    frame = None
+
+    global no_wx
+    if r.headless:
+        no_wx = True
+
+    if not no_wx:
+        app = wx.App()
+        frame = TopFrame(None)
+        frame.init_controls()
 
     if r.archivefile:
         filename = r.archivefile
     else:
+        if no_wx:
+            print('Sorry, the wxPython toolkit must be installed to run in GUI mode')
+            print('See http://wxpython.org/download.php for installation info')
+            print('')
+            print('You can still start webarchiveplayer directly by specifying a W/ARC file via the command line:')
+            print(sys.argv[0] + ' <path to WARC>')
+            return
+
         filename = frame.select_file()
         if filename:
             filename = filename.encode('utf-8')
@@ -217,19 +241,23 @@ def main():
 
     J2TemplateView.env_globals['packages'].append('archiveplayer')
 
-    global archiveplayer
     archiveplayer = ArchivePlayer(filename)
-    frame.archiveplayer = archiveplayer
 
-    webbrowser.open(PLAYER_URL)
+    if frame:
+        frame.archiveplayer = archiveplayer
 
-    server = Thread(target=run_server, args=(archiveplayer.application,))
-    server.daemon = True
-    server.start()
+        server = Thread(target=run_server, args=(archiveplayer.application,))
+        server.daemon = True
+        server.start()
 
-    frame.Show()
-    app.MainLoop()
+        webbrowser.open(PLAYER_URL)
+        
+        frame.Show()
+        app.MainLoop()
     
+    else:
+        webbrowser.open(PLAYER_URL)
+        run_server(archiveplayer.application)
 
 if __name__ == "__main__":
     main()

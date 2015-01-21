@@ -15,7 +15,7 @@ except ImportError:
 
 setup(
     name='webarchiveplayer',
-    version='1.0',
+    version='1.0.1',
     url='https://github.com/ikreymer/webarchiveplayer',
     author='Ilya Kreymer',
     author_email='ikreymer@gmail.com',
@@ -32,10 +32,15 @@ setup(
         },
     install_requires=[
         'pywb==0.7.6',
+        'waitress',
        ],
     dependency_links=[
         'git+https://github.com/ikreymer/pywb.git@develop#egg=pywb-0.7.6'
     ],
+    entry_points="""
+        [console_scripts]
+        webarchiveplayer = archiveplayer.archiveplayer:main
+    """,
     tests_require=[
         'pytest',
         'WebTest',
