@@ -33,6 +33,8 @@ except:
 from waitress import serve
 
 #=================================================================
+PORT = 8090
+PLAYER_URL_TEMP = 'http://localhost:{0}/replay/'
 PLAYER_URL = 'http://localhost:8090/replay/'
 
 #=================================================================
@@ -51,8 +53,6 @@ archive_paths: {archive_path}
 home_html: templates/index.html
 
 search_html: templates/pagelist_search.html
-
-port: 8090
 
 framed_replay: true
 """
@@ -163,7 +163,7 @@ class TopFrame(wxFrame):
         self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
         self.SetMenuBar(self.menu_bar)
 
-        self.title = wx.StaticText(self, label='Web Archive Player v1.0')
+        self.title = wx.StaticText(self, label='Web Archive Player v1.0.1')
         font = wx.Font(24, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
 
@@ -197,7 +197,7 @@ class TopFrame(wxFrame):
 
 #=================================================================
 def run_server(app):
-    serve(app, port=8090, threads=10)
+    serve(app, port=PORT, threads=10)
     #start_wsgi_server(archiveplayer.application, 'Wayback')
 
 
@@ -205,10 +205,18 @@ def run_server(app):
 def main():
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefile', nargs='?')
+    parser.add_argument('--port', nargs='?', default=8090, type=int)
     parser.add_argument('--headless', action='store_true',
                         help="Run without a GUI (defaults to true if wxPython not installed)")
 
     r = parser.parse_args()
+
+    global PORT
+    PORT = r.port
+
+    global PLAYER_URL_TEMP
+    global PLAYER_URL
+    PLAYER_URL = PLAYER_URL_TEMP.format(PORT)
 
     frame = None
 
