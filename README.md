@@ -33,11 +33,9 @@ However, the player should work on any system that has Python 2.7, but requires 
 
 On other systems (or to build from source):
 
-1. [Download and Install wxPython](http://www.wxpython.org/download.php). The native wxPython library must be installed on the system to provide GUI support.
+1. Clone this repo: `git clone https://github.com/ikreymer/webarchiveplayer.git; cd webarchiveplayer`
 
-2. Clone this repo: `git clone https://github.com/ikreymer/webarchiveplayer.git; cd webarchiveplayer`
-
-3. Run `webarchiveplayer [/path/to/warc_or_arc]`
+2. Run `webarchiveplayer [/path/to/warc_or_arc]`
 
 
 ### GUI Mode
@@ -54,8 +52,8 @@ If a W/ARC file argument is passed to the player, eg:
 
 `webarchiveplayer /path/to/warcfile.warc.gz`
 
-The player will select that file and skip the open dialog. Installtion of wxPython is not required when specifiyng
-the WARC explicitly.
+The player will select that file and skip the File Open dialog. Installtion of wxPython is not required when specifiyng
+the WARC explicitly via command line.
 
 The OS X and Windows applications also support specifying the file via command line.
 
