@@ -28,24 +28,26 @@ Once downloaded, no internet connection is necessary in order to browse the arch
 
 Currently, executable versions are available only for OS X and Windows.
 
-However, the player should work on any system that has Python 2.7, but requires a bit more setup.
+However, the player should work on any system that has Python 2.7 and supports wxPython, but requires a bit more setup.
 
 On other systems (or to build from source):
 
-1. Clone this repo: `git clone https://github.com/ikreymer/webarchiveplayer.git; cd webarchiveplayer` 
+1. [Download and Install wxPython](http://www.wxpython.org/download.php). The native wxPython library must be installed on the system to provide GUI support.
 
-2. Run `python setup.py install`
+2. Clone this repo: `git clone https://github.com/ikreymer/webarchiveplayer.git; cd webarchiveplayer`
 
-3. Run `python app/webarchiveplayer.py`
+3. Run `python setup.py install`
 
-4. If everything works as expected, continue from step #3 above.
+4. Run `python app/webarchiveplayer.py`
+
+5. If everything works as expected, continue from step #3 above.
 
 
 ## How it Works
 
 WebArchivePlayer is a simple wrapper over the [pywb web archiving tools](https://github.com/ikreymer/pywb) using
-[pyinstaller](http://www.pyinstaller.org/) to create a standalone, GUI wrapper. The wrapper starts
-a local server which serves content from the selected web archive, using pywb to handle the rest.
+[pyinstaller](http://www.pyinstaller.org/) to create a standalone, GUI wrapper. The [wxPython](http://wxpython.org/) toolkit is used to provide the GUI. The wrapper starts a local server which serves content from the selected web archive, using pywb to handle the rest.
+
 Consult the pywb documentation for more info on web archive replay.
 
 ### Similar Tools
