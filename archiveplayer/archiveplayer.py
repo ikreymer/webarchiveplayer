@@ -47,7 +47,7 @@ collections:
         index_paths: {index_paths}
 
         wb_handler_class: !!python/name:archiveplayer.archiveplayer.ReplayHandler
-    
+
 archive_paths: {archive_path}
 
 home_html: templates/index.html
@@ -59,13 +59,13 @@ framed_replay: true
 
     def __init__(self, archivefile):
         self.archivefile = archivefile
-        
+
         self.coll_name = 'replay'
 
         self.cdx_file = tempfile.NamedTemporaryFile(delete=False,
                                                     suffix='.cdx',
                                                     prefix='cdx')
-        
+
         pagelist = self.update_cdx(self.cdx_file, archivefile)
 
         config = self._load_config()
@@ -140,9 +140,9 @@ framed_replay: true
 class ReplayHandler(WBHandler):
     def __init__(self, query_handler, config=None):
         super(ReplayHandler, self).__init__(query_handler, config)
-        self.pagelist = config.get('_pagelist', [])    
+        self.pagelist = config.get('_pagelist', [])
         self.archivefile = config.get('_archivefile', '')
-    
+
     def render_search_page(self, wbrequest, **kwargs):
         kwargs['pagelist'] = self.pagelist
         kwargs['archivefile'] = self.archivefile
@@ -164,12 +164,12 @@ class TopFrame(wxFrame):
         self.SetMenuBar(self.menu_bar)
 
         self.title = wx.StaticText(self, label='Web Archive Player v1.0.1')
-        font = wx.Font(24, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
+        font = wx.Font(20, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
 
         label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
-        link = wx.HyperlinkCtrl(self, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
-        
+        link = wx.HyperlinkCtrl(self, id=0, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
+
         self.archiveplayer = None
 
     def quit(self, cmd):
