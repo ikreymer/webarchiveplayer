@@ -31,11 +31,11 @@ setup(
         'archiveplayer': ['templates/*'],
         },
     install_requires=[
-        'pywb==0.7.6',
+        'pywb>=0.7.7',
         'waitress',
        ],
     dependency_links=[
-        'git+https://github.com/ikreymer/pywb.git@develop#egg=pywb-0.7.6'
+#        'git+https://github.com/ikreymer/pywb.git@develop#egg=pywb-0.7.6'
     ],
     entry_points="""
         [console_scripts]

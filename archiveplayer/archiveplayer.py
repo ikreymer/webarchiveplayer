@@ -1,6 +1,6 @@
 from pywb.framework.wsgi_wrappers import init_app, start_wsgi_server
 from pywb.webapp.pywb_init import create_wb_router
-from pywb.warc.cdxindexer import write_cdx_index
+from pywb.warc.cdxindexer import write_multi_cdx_index
 from pywb.webapp.handlers import WBHandler
 from pywb.webapp.views import J2TemplateView
 
@@ -57,8 +57,8 @@ search_html: templates/pagelist_search.html
 framed_replay: true
 """
 
-    def __init__(self, archivefile):
-        self.archivefile = archivefile
+    def __init__(self, archivefiles):
+        self.archivefiles = archivefiles
 
         self.coll_name = 'replay'
 
@@ -66,12 +66,16 @@ framed_replay: true
                                                     suffix='.cdx',
                                                     prefix='cdx')
 
-        pagelist = self.update_cdx(self.cdx_file, archivefile)
+        self.path_index = tempfile.NamedTemporaryFile(delete=False,
+                                                      suffix='.txt')
+
+        pagelist = self.update_cdx(self.cdx_file, archivefiles)
 
         config = self._load_config()
         config['_pagelist'] = pagelist
-        config['_archivefile'] = os.path.basename(self.archivefile)
 
+        config['_archivefiles'] = archivefiles
+        self.write_path_index()
         self.application = init_app(create_wb_router,
                                     load_yaml=False,
                                     config=config)
@@ -84,6 +88,19 @@ framed_replay: true
                 pass
             self.cdx_file = None
 
+        if self.path_index:
+            try:
+                os.remove(self.path_index.name)
+            except:
+                pass
+            self.path_index = None
+
+    def write_path_index(self):
+        path_index_lines = [os.path.basename(f) + '\t' + f for f in self.archivefiles]
+        path_index_lines = sorted(path_index_lines)
+        self.path_index.write('\n'.join(path_index_lines))
+        self.path_index.flush()
+
     def _load_config(self):
         config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
         try:
@@ -92,10 +109,11 @@ framed_replay: true
         except:
             contents = self.DEFAULT_CONFIG_FILE
 
-        archive_dir = os.path.dirname(self.archivefile) + os.path.sep
+        #archive_dir = os.path.dirname(self.archivefile) + os.path.sep
+        archive_path = self.path_index.name
 
         contents = contents.format(index_paths=self.cdx_file.name,
-                                   archive_path=archive_dir,
+                                   archive_path=archive_path,
                                    coll_name=self.coll_name)
 
         print('pywb config')
@@ -104,7 +122,7 @@ framed_replay: true
 
         return yaml.load(contents)
 
-    def update_cdx(self, output_cdx, input_):
+    def update_cdx(self, output_cdx, inputs):
         """
         Output sorted, post-query resolving cdx from 'input_' warc(s)
         to 'output_cdx'. Write cdx to temp and rename to output_cdx
@@ -112,14 +130,13 @@ framed_replay: true
         """
 
         try:
-            with open(input_, 'rb') as infile:
-                writer = write_cdx_index(output_cdx, infile, os.path.basename(input_),
-                                         sort=True,
-                                         surt_ordered=True,
-                                         append_post=True,
-                                         include_all=True,
-                                         writer_cls=PageDetectSortedWriter)
-                output_cdx.flush()
+            writer = write_multi_cdx_index(output_cdx.name, inputs,
+                                           sort=True,
+                                           surt_ordered=True,
+                                           append_post=True,
+                                           include_all=True,
+                                           writer_cls=PageDetectSortedWriter)
+            output_cdx.flush()
         except Exception as exc:
             import traceback
             err_details = traceback.format_exc(exc)
@@ -141,11 +158,11 @@ class ReplayHandler(WBHandler):
     def __init__(self, query_handler, config=None):
         super(ReplayHandler, self).__init__(query_handler, config)
         self.pagelist = config.get('_pagelist', [])
-        self.archivefile = config.get('_archivefile', '')
+        self.archivefiles = config.get('_archivefiles', '')
 
     def render_search_page(self, wbrequest, **kwargs):
         kwargs['pagelist'] = self.pagelist
-        kwargs['archivefile'] = self.archivefile
+        kwargs['archivefile'] = ', '.join(self.archivefiles)
         return super(ReplayHandler, self).render_search_page(wbrequest, **kwargs)
 
 
@@ -178,21 +195,21 @@ class TopFrame(wxFrame):
             self.archiveplayer.close()
 
     def select_file(self):
-        #style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST# | wx.DIALOG_NO_PARENT
+        style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE
         #dialog = wx.DirDialog(top, 'Please select a directory containing archive files (WARC or ARC)', style=style)
         dialog = wx.FileDialog(parent=self,
                                message='Please select a web archive (WARC or ARC) file',
                                #wildcard='(*.warc.gz*.arc.gz*.warc*.arc)|*.warc.gz*.arc.gz*.warc*.arc',
                                wildcard='WARC or ARC (*.gz; *.warc; *.arc)|*.gz; *.warc; *.arc',
-                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+                               style=style)
 
         if dialog.ShowModal() == wx.ID_OK:
-            path = dialog.GetPath()
+            paths = dialog.GetPaths()
         else:
-            path = None
+            paths = None
 
         dialog.Destroy()
-        return path
+        return paths
 
 
 #=================================================================
@@ -204,7 +221,7 @@ def run_server(app):
 #=================================================================
 def main():
     parser = ArgumentParser('Web Archive Player')
-    parser.add_argument('archivefile', nargs='?')
+    parser.add_argument('archivefiles', nargs='*')
     parser.add_argument('--port', nargs='?', default=8090, type=int)
     parser.add_argument('--headless', action='store_true',
                         help="Run without a GUI (defaults to true if wxPython not installed)")
@@ -229,8 +246,8 @@ def main():
         frame = TopFrame(None)
         frame.init_controls()
 
-    if r.archivefile:
-        filename = r.archivefile
+    if r.archivefiles:
+        filenames = r.archivefiles
     else:
         if no_wx:
             print('Sorry, the wxPython toolkit must be installed to run in GUI mode')
@@ -240,16 +257,16 @@ def main():
             print(sys.argv[0] + ' <path to WARC>')
             return
 
-        filename = frame.select_file()
-        if filename:
-            filename = filename.encode('utf-8')
+        filenames = frame.select_file()
+        if filenames:
+            filenames = map(lambda x: x.encode('utf-8'), filenames)
 
-    if not filename:
+    if not filenames:
         return
 
     J2TemplateView.env_globals['packages'].append('archiveplayer')
 
-    archiveplayer = ArchivePlayer(filename)
+    archiveplayer = ArchivePlayer(filenames)
 
     if frame:
         frame.archiveplayer = archiveplayer
@@ -259,10 +276,10 @@ def main():
         server.start()
 
         webbrowser.open(PLAYER_URL)
-        
+
         frame.Show()
         app.MainLoop()
-    
+
     else:
         webbrowser.open(PLAYER_URL)
         run_server(archiveplayer.application)
