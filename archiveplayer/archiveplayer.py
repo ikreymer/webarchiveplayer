@@ -21,6 +21,7 @@ from pywb.warc import cdxindexer
 from argparse import ArgumentParser
 
 import webbrowser
+import atexit
 
 no_wx = False
 try:
@@ -36,6 +37,7 @@ from waitress import serve
 PORT = 8090
 PLAYER_URL_TEMP = 'http://localhost:{0}/replay/'
 PLAYER_URL = 'http://localhost:8090/replay/'
+
 
 #=================================================================
 class ArchivePlayer(object):
@@ -219,6 +221,13 @@ def run_server(app):
 
 
 #=================================================================
+def ensure_close(archiveplayer):
+    print('Deleting Temps')
+    if archiveplayer:
+        archiveplayer.close()
+
+
+#=================================================================
 def main():
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefiles', nargs='*')
@@ -267,6 +276,7 @@ def main():
     J2TemplateView.env_globals['packages'].append('archiveplayer')
 
     archiveplayer = ArchivePlayer(filenames)
+    atexit.register(ensure_close, archiveplayer)
 
     if frame:
         frame.archiveplayer = archiveplayer
@@ -279,7 +289,6 @@ def main():
 
         frame.Show()
         app.MainLoop()
-
     else:
         webbrowser.open(PLAYER_URL)
         run_server(archiveplayer.application)
