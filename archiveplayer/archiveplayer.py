@@ -1,6 +1,10 @@
 from pywb.framework.wsgi_wrappers import init_app, start_wsgi_server
 from pywb.webapp.pywb_init import create_wb_router
+
 from pywb.warc.cdxindexer import write_multi_cdx_index
+from pywb.warc.cdxindexer import iter_file_or_dir
+from pywb.warc.archiveiterator import create_index_iter
+
 from pywb.webapp.handlers import WBHandler
 from pywb.webapp.views import J2TemplateView
 
@@ -98,7 +102,9 @@ framed_replay: true
             self.path_index = None
 
     def write_path_index(self):
-        path_index_lines = [os.path.basename(f) + '\t' + f for f in self.archivefiles]
+        path_index_lines = [self.format_filename(os.path.basename(f)) + '\t' + f
+                            for f in self.archivefiles]
+
         path_index_lines = sorted(path_index_lines)
         self.path_index.write('\n'.join(path_index_lines))
         self.path_index.flush()
@@ -124,6 +130,11 @@ framed_replay: true
 
         return yaml.load(contents)
 
+    def format_filename(self, filename):
+        """ Replace spaces with _ in filename for path index
+        """
+        return filename.replace(' ', '_')
+
     def update_cdx(self, output_cdx, inputs):
         """
         Output sorted, post-query resolving cdx from 'input_' warc(s)
@@ -131,18 +142,29 @@ framed_replay: true
         when completed to ensure atomic updates of the cdx.
         """
 
+        writer_cls = PageDetectSortedWriter
+        options = dict(sort=True,
+                       surt_ordered=True,
+                       append_post=True,
+                       include_all=True)
+
         try:
-            writer = write_multi_cdx_index(output_cdx.name, inputs,
-                                           sort=True,
-                                           surt_ordered=True,
-                                           append_post=True,
-                                           include_all=True,
-                                           writer_cls=PageDetectSortedWriter)
+            with open(output_cdx.name, 'wb') as outfile:
+                with writer_cls(outfile) as writer:
+                    for fullpath, filename in iter_file_or_dir(inputs):
+                        filename = self.format_filename(filename)
+                        with open(fullpath, 'rb') as infile:
+                            entry_iter = create_index_iter(infile, **options)
+
+                            for entry in entry_iter:
+                                writer.write(entry, filename)
+
             output_cdx.flush()
         except Exception as exc:
             import traceback
             err_details = traceback.format_exc(exc)
             print err_details
+            return None
 
         return writer.pages
 
