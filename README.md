@@ -12,7 +12,7 @@ Once downloaded, no internet connection is necessary in order to browse the arch
 
 * **[Download for Windows](https://github.com/ikreymer/webarchiveplayer/raw/master/app/windows/webarchiveplayer.exe)**
 
-2. Double click to open. (For OS X, open the .dmg file to mount the volume and extract the player). You may have to agree to open files from the internet. (This is still currently new experimental software).
+2. Double click to open. (For OS X, open the .dmg file to mount the volume and extract the player). You may have to agree to allow open files from the internet, and to allow making internet connections (windows only). This still new software and other distribution methods may be added in the future.
 
 3. A file dialog will show up. Browse to an existing WARC or ARC file(s).
 
@@ -65,6 +65,10 @@ The wrapper starts a local server which serves content from the selected web arc
 
 Consult the pywb documentation for more info on web archive replay.
 
-### Similar Tools
+### Questions / Issues
 
-Another project, which in part inspired WebArchivePlayer, is Mat Kelly's excellent [WAIL](http://matkelly.com/wail/) project, which provides a GUI for different crawling and replay systems.
+Please feel free to open an issue on this page for any problems / questions / concerns regarding this tool. This is a brand new software, so feedback is encouraged.
+
+### Other Tools
+
+Another project, which in part inspired WebArchivePlayer, is Mat Kelly's excellent [WAIL](http://matkelly.com/wail/) project, which provides a GUI for different web crawling and replay systems.
