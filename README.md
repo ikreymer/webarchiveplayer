@@ -4,9 +4,6 @@ WebArchivePlayer is a new desktop tool which provides a simple point-and-click w
 
 The player allows users to pick one or more ARC/WARC from their local machine and browse the contents from any browser. No internet connection is necessary in order to browse the archive.
 
-![OS X Screenshot](/app/osx/osx_screenshot.png?raw=true "Wikipedia Blackout Replay")
-
-(Replaying screenshot from [Wikipedia SOPA Blackout](https://github.com/ukwa/webarchive-test-suite/tree/master/wikipedia-sopa-blackout-2012). You can [download the WARC](https://github.com/ukwa/webarchive-test-suite/blob/master/wikipedia-sopa-blackout-2012/wikipedia-blackout/sopa-wikipedia-homepage.warc.gz?raw=true) from GitHub.)
 
 ## Usage (Windows and OS X Apps)
 
@@ -28,6 +25,12 @@ The player allows users to pick one or more ARC/WARC from their local machine an
 
 6. To exit, simply close the WebArchivePlayer window.
 
+### Example
+
+![OS X Screenshot](/app/osx/osx_screenshot.png?raw=true "Wikipedia Blackout Replay")
+![Windows Screenshot](/app/windows/screenshot.png?raw=true "Wikipedia Blackout Replay")
+
+(Replaying screenshot from [Wikipedia SOPA Blackout](https://github.com/ukwa/webarchive-test-suite/tree/master/wikipedia-sopa-blackout-2012). You can [download the WARC](https://github.com/ukwa/webarchive-test-suite/blob/master/wikipedia-sopa-blackout-2012/wikipedia-blackout/sopa-wikipedia-homepage.warc.gz?raw=true) from GitHub.)
 
 ## Usage for All Platforms -- Running from python source
 
