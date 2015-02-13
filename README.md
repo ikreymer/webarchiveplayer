@@ -1,8 +1,12 @@
-# WebArchivePlayer (Alpha)
+# WebArchivePlayer 1.1.0
 
-WebArchivePlayer is a brand new desktop tool which provides a point-and-click wrapper for viewing web archive files (WARC and ARC).
-The player allows users to browse web archive files, such as those created via https://webrecorder.io locally on their desktop.
-Once downloaded, no internet connection is necessary in order to browse the archive.
+WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format). These files are international standard formats used by web archiving institutions, including Internet Archive's Wayback Machine and newer projects such as https://webrecorder.io
+
+The player allows users to pick one or more ARC/WARC from their local machine and browse the contents from any browser. No internet connection is necessary in order to browse the archive.
+
+![OS X Screenshot](/app/osx/osx_screenshot.png?raw=true "Wikipedia Blackout Replay")
+
+(Replaying screenshot from [Wikipedia SOPA Blackout](https://github.com/ukwa/webarchive-test-suite/tree/master/wikipedia-sopa-blackout-2012). You can [download the WARC](https://github.com/ukwa/webarchive-test-suite/blob/master/wikipedia-sopa-blackout-2012/wikipedia-blackout/sopa-wikipedia-homepage.warc.gz?raw=true) from GitHub.)
 
 ## Usage (Windows and OS X Apps)
 
@@ -56,6 +60,15 @@ The player will select that file and skip the File Open dialog. Installtion of w
 the WARC explicitly via command line.
 
 The OS X and Windows applications also support specifying the file via command line.
+
+### Changelist
+
+#### 1.1.0
+Support opening multiple WARC/ARC files at once. Also fix issue with opening files with spaces in filename.
+
+#### 1.0.1
+Initial release.
+
 
 ## How it Works
 
