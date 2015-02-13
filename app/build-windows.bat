@@ -1,2 +1,2 @@
-pyinstaller -F -w webarchiveplayer.py
+pyinstaller --clean -y -F -w webarchiveplayer.py
 move dist\webarchiveplayer.exe windows\

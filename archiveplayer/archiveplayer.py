@@ -213,7 +213,7 @@ class TopFrame(wxFrame):
         label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
         link = wx.HyperlinkCtrl(self, id=0, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
 
-        info_label = wx.StaticText(self, label='More Info about WebArchivePlayer, please visit:', pos=(4, 100))
+        info_label = wx.StaticText(self, label='For more info about Web Archive Player, please visit:', pos=(4, 100))
         info_link = wx.HyperlinkCtrl(self, id=0, label=INFO_URL, url=INFO_URL, pos=(4, 120))
 
         self.archiveplayer = None
