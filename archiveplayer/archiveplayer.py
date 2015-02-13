@@ -9,6 +9,7 @@ from pywb.webapp.handlers import WBHandler
 from pywb.webapp.views import J2TemplateView
 
 from pagedetect import PageDetectSortedWriter
+from version import __version__, INFO_URL
 
 import os
 import shutil
@@ -187,6 +188,7 @@ class ReplayHandler(WBHandler):
     def render_search_page(self, wbrequest, **kwargs):
         kwargs['pagelist'] = self.pagelist
         kwargs['archivefile'] = ', '.join(self.archivefiles)
+        kwargs['version'] = __version__
         return super(ReplayHandler, self).render_search_page(wbrequest, **kwargs)
 
 
@@ -204,12 +206,15 @@ class TopFrame(wxFrame):
         self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
         self.SetMenuBar(self.menu_bar)
 
-        self.title = wx.StaticText(self, label='Web Archive Player v1.0.1')
+        self.title = wx.StaticText(self, label='Web Archive Player ' + __version__)
         font = wx.Font(20, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
 
         label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
         link = wx.HyperlinkCtrl(self, id=0, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
+
+        info_label = wx.StaticText(self, label='More Info about WebArchivePlayer, please visit:', pos=(4, 100))
+        info_link = wx.HyperlinkCtrl(self, id=0, label=INFO_URL, url=INFO_URL, pos=(4, 120))
 
         self.archiveplayer = None
 
@@ -254,10 +259,15 @@ def main():
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefiles', nargs='*')
     parser.add_argument('--port', nargs='?', default=8090, type=int)
+    parser.add_argument('-v', '--version', action='store_true')
     parser.add_argument('--headless', action='store_true',
                         help="Run without a GUI (defaults to true if wxPython not installed)")
 
     r = parser.parse_args()
+
+    if r.version:
+        print(__version__)
+        sys.exit(0)
 
     global PORT
     PORT = r.port

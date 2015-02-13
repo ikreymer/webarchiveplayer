@@ -5,6 +5,7 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import glob
 
+from archiveplayer.version import __version__, INFO_URL
 
 # Fix for TypeError: 'NoneType' object is not callable" error
 # when running 'python setup.py test'
@@ -15,8 +16,8 @@ except ImportError:
 
 setup(
     name='webarchiveplayer',
-    version='1.0.1',
-    url='https://github.com/ikreymer/webarchiveplayer',
+    version=__version__,
+    url=INFO_URL,
     author='Ilya Kreymer',
     author_email='ikreymer@gmail.com',
     description='Simple Point-and-Click Web Archive Player Tool',
