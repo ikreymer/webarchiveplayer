@@ -32,7 +32,7 @@ setup(
         'archiveplayer': ['templates/*'],
         },
     install_requires=[
-        'pywb>=0.7.7',
+        'pywb>=0.8.2',
         'waitress',
        ],
     dependency_links=[

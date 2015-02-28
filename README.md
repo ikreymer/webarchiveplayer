@@ -1,8 +1,11 @@
-# WebArchivePlayer 1.1.0
+# WebArchivePlayer 1.1.1
 
-WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format). These files are international standard formats used by web archiving institutions, including Internet Archive's Wayback Machine and newer projects such as https://webrecorder.io
+WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
+
+To create a web archive (WARC) file of your own, you can use the free https://webrecorder.io/ service to browse any page and then download the recorded WARC file.
 
 The player allows users to pick one or more ARC/WARC from their local machine and browse the contents from any browser. No internet connection is necessary in order to browse the archive.
+
 
 
 ## Usage (Windows and OS X Apps)
@@ -65,6 +68,9 @@ the WARC explicitly via command line.
 The OS X and Windows applications also support specifying the file via command line.
 
 ### Changelist
+
+#### 1.1.1
+Update to use latest pywb release (0.8.2)
 
 #### 1.1.0
 Support opening multiple WARC/ARC files at once. Also fix issue with opening files with spaces in filename.
