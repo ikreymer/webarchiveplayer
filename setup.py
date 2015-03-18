@@ -32,11 +32,12 @@ setup(
         'archiveplayer': ['templates/*'],
         },
     install_requires=[
-        'pywb>=0.8.2',
+        'pywb==0.8.3',
         'waitress',
+        #forcing this due to incompatibility between pyinstaller and later versions of requests
+        'requests==2.5.1',
        ],
     dependency_links=[
-#        'git+https://github.com/ikreymer/pywb.git@develop#egg=pywb-0.7.6'
     ],
     entry_points="""
         [console_scripts]
@@ -49,7 +50,7 @@ setup(
        ],
     zip_safe=True,
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

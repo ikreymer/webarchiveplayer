@@ -70,7 +70,7 @@ The OS X and Windows applications also support specifying the file via command l
 ### Changelist
 
 #### 1.1.1
-Update to use latest pywb release (0.8.2)
+Update to use latest pywb release (0.8.3)
 
 #### 1.1.0
 Support opening multiple WARC/ARC files at once. Also fix issue with opening files with spaces in filename.
