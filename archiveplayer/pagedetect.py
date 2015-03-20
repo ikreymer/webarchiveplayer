@@ -50,9 +50,9 @@ class PageDetectWriterMixin(object):
 
         # if warcinfo is first, attempt to extract page info
         if entry.record.rec_type == 'warcinfo':
-            if self.count == 0:
-                if self.parse_page_info(entry):
-                    self.is_guessing = False
+            #if self.count == 0:
+            #    if self.parse_page_info(entry):
+            #        self.is_guessing = False
             return
 
         elif entry.record.content_type == 'application/warc-fields':
@@ -82,8 +82,8 @@ class PageDetectWriterMixin(object):
         if not metadata:
             return False
 
-        self.pages = metadata.get('pages', [])
-        self.num_urls = metadata.get('num_urls', 0)
+        self.pages.extend(metadata.get('pages', []))
+        self.num_urls += metadata.get('num_urls', 0)
         return True
 
     @staticmethod
