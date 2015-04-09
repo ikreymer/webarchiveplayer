@@ -62,7 +62,7 @@ If a W/ARC file argument is passed to the player, eg:
 
 `webarchiveplayer /path/to/warcfile.warc.gz`
 
-The player will select that file and skip the File Open dialog. Installtion of wxPython is not required when specifiyng
+The player will select that file and skip the File Open dialog. Installation of wxPython is not required when specifiyng
 the WARC explicitly via command line.
 
 The OS X and Windows applications also support specifying the file via command line.
