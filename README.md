@@ -39,13 +39,15 @@ The player allows users to pick one or more ARC/WARC from their local machine an
 
 Currently, executable versions are available only for OS X and Windows.
 
-However, the player should work on any system that has Python 2.7, but requires a little bit more setup.
+However, the player should work on any system that has Python 2.7.x, but requires a little bit more setup.
 
 On other systems (or to build from source):
 
 1. Clone this repo: `git clone https://github.com/ikreymer/webarchiveplayer.git; cd webarchiveplayer`
 
-2. Run `webarchiveplayer [/path/to/warc_or_arc]`
+2. Install by running `python setup.py install` (optionally using a virtualenv)
+
+3. Run `webarchiveplayer [/path/to/warc_or_arc]`
 
 
 ### GUI Mode
