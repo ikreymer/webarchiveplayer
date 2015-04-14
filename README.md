@@ -79,6 +79,9 @@ The OS X and Windows applications also support specifying the file via command l
 
 The binaries can be built by running the builds scripts from the apps dir:
 
+*Note: wxPython must be installed for this to work. If running in virtualenv, follow instructions above. The install
+script will not run if it can't find wxPython*
+
 OS X: (output written to `osx/webarchiveplayer.dmg`)
 ```
 cd apps
@@ -96,6 +99,7 @@ build-windows.bat
 
 #### 1.1.2
 Fix issue where page listing only lists pages for one WARC/ARC when multiple are selected.
+Build scripts check for wxPython installation.
 
 #### 1.1.1
 Update to use latest pywb release (0.8.3)
