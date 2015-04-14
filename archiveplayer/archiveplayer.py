@@ -228,7 +228,8 @@ class TopFrame(wxFrame):
         #dialog = wx.DirDialog(top, 'Please select a directory containing archive files (WARC or ARC)', style=style)
         dialog = wx.FileDialog(parent=self,
                                message='Please select a web archive (WARC or ARC) file',
-                               wildcard="WARC or ARC files (*.warc.gz; *.arc.gz; *.warc; *.arc)|*.gz;*.warc;*.arc",
+                               wildcard='WARC or ARC (*.gz; *.warc; *.arc)|*.gz;*.warc;*.arc',
+                               #wildcard='WARC or ARC (*.gz; *.warc; *.arc)|*.gz; *.warc; *.arc',
                                style=style)
 
         if dialog.ShowModal() == wx.ID_OK:
