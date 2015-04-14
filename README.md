@@ -58,6 +58,12 @@ However, in order to run in GUI mode, the wxPython toolkit will also need to be 
 
 Refer to instructions at [wxPython Download page](http://wxpython.org/download.php) for your platform.
 
+### wxPython and virtualenv
+
+wxPython does not by default work in virtualenv. The simplest way to make it work is to symlink the system `wxredirect.pth` to the virtualenv site-packages directory. For example, on OS X, if you've installed `virtualenv [myenv]
+
+`ln -s /Library/Python/2.7/site-packages/wxredirect.pth [myenv]/lib/python2.7/site-packages/wxredirect.pth`
+
 ### CLI Mode
 
 If a W/ARC file argument is passed to the player, eg:
@@ -68,6 +74,23 @@ The player will select that file and skip the File Open dialog. Installation of 
 the WARC explicitly via command line.
 
 The OS X and Windows applications also support specifying the file via command line.
+
+### Building GUI Binaries
+
+The binaries can be built by running the builds scripts from the apps dir:
+
+OS X: (output written to `osx/webarchiveplayer.dmg`)
+```
+cd apps
+./build-osx.sh
+```
+
+Windows: (output copied to `windows\webarchiveplayer.exe`)
+```
+cd apps
+build-windows.bat
+```
+
 
 ### Changelist
 
