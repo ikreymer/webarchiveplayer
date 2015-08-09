@@ -5,7 +5,7 @@ import random
 import subprocess
 
 from io import BytesIO
-from pywb.warc.cdxindexer import write_cdx_index, SortedCDXWriter, CDXWriter
+from pywb.warc.cdxindexer import write_cdx_index, SortedCDXWriter
 from datetime import datetime
 
 
@@ -27,8 +27,12 @@ class PageDetectWriterMixin(object):
         # try some heuristics to determine if page
 
         # check for very long query, greater than the rest of url -- probably not a page
-        parts = url.split('?')
+        parts = url.split('?', 1)
         if len(parts) == 2 and len(parts[1]) > len(parts[0]):
+            return
+
+        # skip robots.txt
+        if parts[0].endswith('/robots.txt'):
             return
 
         self.pages.append(dict(url=url, ts=ts))
@@ -60,17 +64,17 @@ class PageDetectWriterMixin(object):
 
         # if not guessing, just pass to super
         if self.is_guessing:
-            if (entry.mime in ('text/html', 'text/plain')  and
-                entry.status == '200' and
-                entry.digest != self.EMPTY_DIGEST):
+            if (entry['mime'] in ('text/html', 'text/plain')  and
+                entry['status'] == '200' and
+                entry['digest'] != self.EMPTY_DIGEST):
 
-                self._possible_page(entry.url, entry.timestamp)
+                self._possible_page(entry['url'], entry['timestamp'])
 
-            elif entry.url in self.referers:
-                self._possible_page(entry.url, entry.timestamp)
+            elif entry['url'] in self.referers:
+                self._possible_page(entry['url'], entry['timestamp'])
 
-            if hasattr(entry, 'referer'):
-                self.referers.add(entry.referer)
+            if entry.get('_referer'):
+                self.referers.add(entry['_referer'])
 
         super(PageDetectWriterMixin, self).write(entry, filename)
 
@@ -107,4 +111,4 @@ class PageDetectWriterMixin(object):
 
 class PageDetectSortedWriter(PageDetectWriterMixin, SortedCDXWriter):
     pass
- 
+

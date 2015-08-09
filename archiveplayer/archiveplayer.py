@@ -1,12 +1,9 @@
-from pywb.framework.wsgi_wrappers import init_app, start_wsgi_server
+from pywb.framework.wsgi_wrappers import init_app # start_wsgi_server
 from pywb.webapp.pywb_init import create_wb_router
 
 from pywb.warc.cdxindexer import write_multi_cdx_index
-from pywb.warc.cdxindexer import iter_file_or_dir
-from pywb.warc.archiveiterator import create_index_iter
 
 from pywb.webapp.handlers import WBHandler
-from pywb.webapp.views import J2TemplateView
 
 from pagedetect import PageDetectSortedWriter
 from version import __version__, INFO_URL
@@ -40,8 +37,8 @@ from waitress import serve
 
 #=================================================================
 PORT = 8090
-PLAYER_URL_TEMP = 'http://localhost:{0}/replay/'
-PLAYER_URL = 'http://localhost:8090/replay/'
+PLAYER_URL_TEMP = 'http://localhost:{0}/'
+PLAYER_URL = 'http://localhost:8090/'
 
 
 #=================================================================
@@ -50,27 +47,36 @@ class ArchivePlayer(object):
 
     DEFAULT_CONFIG_FILE = """
 collections:
-    {coll_name}:
+    '{coll_name}':
         index_paths: {index_paths}
 
         wb_handler_class: !!python/name:archiveplayer.archiveplayer.ReplayHandler
 
 archive_paths: {archive_path}
 
-home_html: templates/index.html
+search_html: pagelist_search.html
 
-search_html: templates/pagelist_search.html
+framed_replay: inverse
 
-framed_replay: true
+enable_auto_colls: false
+
+enable_memento: true
+
+enable_cdx_api: true
+
+template_packages:
+    - pywb
+    - archiveplayer
+
 """
 
     def __init__(self, archivefiles):
         self.archivefiles = archivefiles
 
-        self.coll_name = 'replay'
+        self.coll_name = ''
 
         self.cdx_file = tempfile.NamedTemporaryFile(delete=False,
-                                                    suffix='.cdx',
+                                                    suffix='.cdxj',
                                                     prefix='cdx')
 
         self.path_index = tempfile.NamedTemporaryFile(delete=False,
@@ -103,7 +109,7 @@ framed_replay: true
             self.path_index = None
 
     def write_path_index(self):
-        path_index_lines = [self.format_filename(os.path.basename(f)) + '\t' + f
+        path_index_lines = [os.path.basename(f) + '\t' + f
                             for f in self.archivefiles]
 
         path_index_lines = sorted(path_index_lines)
@@ -131,11 +137,6 @@ framed_replay: true
 
         return yaml.load(contents)
 
-    def format_filename(self, filename):
-        """ Replace spaces with _ in filename for path index
-        """
-        return filename.replace(' ', '_')
-
     def update_cdx(self, output_cdx, inputs):
         """
         Output sorted, post-query resolving cdx from 'input_' warc(s)
@@ -147,25 +148,13 @@ framed_replay: true
         options = dict(sort=True,
                        surt_ordered=True,
                        append_post=True,
-                       include_all=True)
+                       cdxj=True,
+                       include_all=True,
+                       writer_add_mixin=True)
 
-        try:
-            with open(output_cdx.name, 'wb') as outfile:
-                with writer_cls(outfile) as writer:
-                    for fullpath, filename in iter_file_or_dir(inputs):
-                        filename = self.format_filename(filename)
-                        with open(fullpath, 'rb') as infile:
-                            entry_iter = create_index_iter(infile, **options)
+        options['writer_cls'] = writer_cls
 
-                            for entry in entry_iter:
-                                writer.write(entry, filename)
-
-            output_cdx.flush()
-        except Exception as exc:
-            import traceback
-            err_details = traceback.format_exc(exc)
-            print err_details
-            return None
+        writer = write_multi_cdx_index(output_cdx.name, inputs, **options)
 
         return writer.pages
 
@@ -304,8 +293,6 @@ def main():
 
     if not filenames:
         return
-
-    J2TemplateView.env_globals['packages'].append('archiveplayer')
 
     archiveplayer = ArchivePlayer(filenames)
     atexit.register(ensure_close, archiveplayer)
