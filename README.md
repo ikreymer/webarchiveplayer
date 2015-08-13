@@ -77,20 +77,20 @@ The OS X and Windows applications also support specifying the file via command l
 
 ### Building GUI Binaries
 
-The binaries can be built by running the builds scripts from the apps dir:
+The binaries can be built by running the builds scripts from the `app` directory:
 
 *Note: wxPython must be installed for this to work. If running in virtualenv, follow instructions above. The install
 script will not run if it can't find wxPython*
 
 OS X: (output written to `osx/webarchiveplayer.dmg`)
 ```
-cd apps
+cd app
 ./build-osx.sh
 ```
 
 Windows: (output copied to `windows\webarchiveplayer.exe`)
 ```
-cd apps
+cd app
 build-windows.bat
 ```
 
