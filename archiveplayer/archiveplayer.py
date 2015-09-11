@@ -5,6 +5,8 @@ from pywb.warc.cdxindexer import write_multi_cdx_index
 
 from pywb.webapp.handlers import WBHandler
 
+from pywb import __version__ as pywb_version
+
 from pagedetect import PageDetectSortedWriter
 from version import __version__, INFO_URL
 
@@ -39,6 +41,8 @@ from waitress import serve
 PORT = 8090
 PLAYER_URL_TEMP = 'http://localhost:{0}/'
 PLAYER_URL = 'http://localhost:8090/'
+
+PYWB_URL = 'https://github.com/ikreymer/pywb'
 
 
 #=================================================================
@@ -178,6 +182,7 @@ class ReplayHandler(WBHandler):
         kwargs['pagelist'] = self.pagelist
         kwargs['archivefile'] = ', '.join(self.archivefiles)
         kwargs['version'] = __version__
+        kwargs['pywb_version'] = pywb_version
         return super(ReplayHandler, self).render_search_page(wbrequest, **kwargs)
 
 
@@ -198,6 +203,10 @@ class TopFrame(wxFrame):
         self.title = wx.StaticText(self, label='Web Archive Player ' + __version__)
         font = wx.Font(20, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
+
+        pywb_info = wx.StaticText(self, label='(pywb {0})'.format(pywb_version), pos=(4, 20))
+        font = wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
+        pywb_info.SetFont(font)
 
         label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
         link = wx.HyperlinkCtrl(self, id=0, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
