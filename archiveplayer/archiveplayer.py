@@ -30,6 +30,7 @@ import atexit
 no_wx = False
 try:
     import wx
+    import wx.html
     wxFrame = wx.Frame
 except:
     no_wx = True
@@ -121,7 +122,7 @@ template_packages:
         self.path_index.flush()
 
     def _load_config(self):
-        config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
+        config_file = os.environ.get('PYWB_CONFIG_FILE', './config.yaml')
         try:
             with open(config_file) as fh:
                 contents = fh.read()
@@ -172,6 +173,16 @@ template_packages:
 
 
 #=================================================================
+class StaticPywbApp(object):
+    def __init__(self, static_config):
+        self.application = init_app(create_wb_router,
+                                    load_yaml=False,
+                                    config=static_config)
+    def close(self):
+        pass
+
+
+#=================================================================
 class ReplayHandler(WBHandler):
     def __init__(self, query_handler, config=None):
         super(ReplayHandler, self).__init__(query_handler, config)
@@ -186,9 +197,64 @@ class ReplayHandler(WBHandler):
         return super(ReplayHandler, self).render_search_page(wbrequest, **kwargs)
 
 
+
+DEFAULT_HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Web Archive Player {version}</h1>
+<h3>(pywb {pywb_version})</h3>
+
+<p>Archive Player Server running at:<br/>
+<a href="{player_url}">{player_url}</a>
+</p>
+
+<p>For more info about Web Archive Player, please visit:<br/>
+<a href="{info_url}">{info_url}</a>
+</p>
+
+</body>
+</html>
+"""
+
 #=================================================================
 class TopFrame(wxFrame):
-    def init_controls(self):
+    def init_controls(self, contents=None, title=None):
+        self.menu_bar  = wx.MenuBar()
+        self.help_menu = wx.Menu()
+
+        #self.help_menu.Append(wx.ID_ABOUT,   menuTitle_about)
+        self.help_menu.Append(wx.ID_EXIT,   "&QUIT")
+        self.menu_bar.Append(self.help_menu, "File")
+
+        #self.Bind(wx.EVT_MENU, self.displayAboutMenu, id=wx.ID_ABOUT)
+        self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
+        self.SetMenuBar(self.menu_bar)
+
+        self.html = wx.html.HtmlWindow(self)
+        self.html.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.on_load_url)
+
+        if not title:
+            title = 'Web Archive Player ' + __version__
+
+        self.SetTitle(title)
+
+        if not contents:
+            contents = DEFAULT_HTML_PAGE
+
+        contents = contents.format(version=__version__,
+                                   pywb_version=pywb_version,
+                                   player_url=PLAYER_URL,
+                                   info_url=INFO_URL)
+
+        self.html.SetPage(contents)
+
+    def on_load_url(self, evt):
+        info = evt.GetLinkInfo()
+        href = info.GetHref()
+        wx.LaunchDefaultBrowser(href)
+
+    def init_controls2(self):
         self.menu_bar  = wx.MenuBar()
         self.help_menu = wx.Menu()
 
@@ -201,6 +267,7 @@ class TopFrame(wxFrame):
         self.SetMenuBar(self.menu_bar)
 
         self.title = wx.StaticText(self, label='Web Archive Player ' + __version__)
+        #self.title = wx.StaticText(self, label=str(os.getcwd()))
         font = wx.Font(20, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         self.title.SetFont(font)
 
@@ -253,6 +320,24 @@ def ensure_close(archiveplayer):
 
 
 #=================================================================
+def load_static_config():
+    config_file = os.environ.get('PYWB_CONFIG_FILE', './config.yaml')
+    try:
+        with open(config_file) as fh:
+            contents = fh.read()
+    except Exception as e:
+        return {}
+
+    print('pywb config')
+    print('===========')
+    print(contents)
+
+    config = yaml.load(contents)
+
+    return config
+
+
+#=================================================================
 def main():
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefiles', nargs='*')
@@ -282,29 +367,63 @@ def main():
 
     if not no_wx:
         app = wx.App()
-        frame = TopFrame(None)
-        frame.init_controls()
 
-    if r.archivefiles:
-        filenames = r.archivefiles
+        static_config = load_static_config()
+
+        player_config = static_config.get('webarchiveplayer', {})
+        size = (int(player_config.get('width', 400)), int(player_config.get('height', 200)))
+
+        frame = TopFrame(None, size=size)
+
+        contents = None
+        title = player_config.get('title')
+        desc_html_file = player_config.get('desc_html')
+
+        if desc_html_file:
+            try:
+                with open(desc_html_file) as fh:
+                    contents = fh.read()
+            except:
+                contents = None
+
+        frame.init_controls(contents, title)
     else:
-        if no_wx:
-            print('Sorry, the wxPython toolkit must be installed to run in GUI mode')
-            print('See http://wxpython.org/download.php for installation info')
-            print('')
-            print('You can still start webarchiveplayer directly by specifying a W/ARC file via the command line:')
-            print(sys.argv[0] + ' <path to WARC>')
+        static_config = load_static_config()
+
+
+    # ignore this and continue loading with warcs specified by user
+    if static_config:
+        if static_config.get('webarchiveplayer', {}).get('select_user_warcs', False):
+            static_config = None
+
+    if static_config:
+        archiveplayer = StaticPywbApp(static_config)
+        start_url = PLAYER_URL + static_config.get('webarchiveplayer', {}).get('start_url', '')
+
+    else:
+        if r.archivefiles:
+            filenames = r.archivefiles
+        else:
+            if no_wx:
+                print('Sorry, the wxPython toolkit must be installed to run in GUI mode')
+                print('See http://wxpython.org/download.php for installation info')
+                print('')
+                print('You can still start webarchiveplayer directly by specifying a W/ARC file via the command line:')
+                print(sys.argv[0] + ' <path to WARC>')
+                return
+
+            filenames = frame.select_file()
+            if filenames:
+                filenames = map(lambda x: x.encode('utf-8'), filenames)
+
+        if not filenames:
             return
 
-        filenames = frame.select_file()
-        if filenames:
-            filenames = map(lambda x: x.encode('utf-8'), filenames)
+        archiveplayer = ArchivePlayer(filenames)
+        atexit.register(ensure_close, archiveplayer)
 
-    if not filenames:
-        return
+        start_url = PLAYER_URL
 
-    archiveplayer = ArchivePlayer(filenames)
-    atexit.register(ensure_close, archiveplayer)
 
     if frame:
         frame.archiveplayer = archiveplayer
@@ -313,13 +432,14 @@ def main():
         server.daemon = True
         server.start()
 
-        webbrowser.open(PLAYER_URL)
+        webbrowser.open(start_url)
 
         frame.Show()
         app.MainLoop()
     else:
-        webbrowser.open(PLAYER_URL)
+        webbrowser.open(start_url)
         run_server(archiveplayer.application)
+
 
 if __name__ == "__main__":
     main()

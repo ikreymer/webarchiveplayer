@@ -1,4 +1,4 @@
-# WebArchivePlayer 1.1.4
+# WebArchivePlayer 1.2.0
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
 
@@ -75,6 +75,63 @@ the WARC explicitly via command line.
 
 The OS X and Windows applications also support specifying the file via command line.
 
+### Custom Preset Archive Mode
+
+In addition to opening files, WebArchivePlayer can now also be used to provide a point-and-click launcher for
+any [pywb](https://github.com/ikreymer/pywb) archive.
+
+If a `config.yaml` file is present in the working directory (same directory as WebArchivePlayer), the specified configuration will be loaded
+instead of a file prompt.
+
+This can be used to distribute specific archives together with WebArchivePlayer.
+
+Certain aspects of the player can also be modified in the `config.yaml`, including changing the contents
+from 'Web Archive Player' to any custom title and HTML page.
+
+
+```
+webarchiveplayer:
+   # initial page to load on start-up
+   # eg: http://localhost:8090/my_coll/http://example.com/
+   start_url: my_coll/http://example.com/
+
+   # set initial width of player window
+   width: 400
+
+   # set initial height of player window
+   height: 250
+
+   # set window title
+   title: My Archive
+
+   # Load custom contents from local HTML
+   desc_html: ./desc.html
+```
+
+For example, one could distribute a WARC together with the player and provide a custom setup.
+
+
+1) Create new directory `my_archive` and switch to it.
+
+2) Copy the WebArchivePlayer application to `my_archive`
+
+2) In `my_archive`, run `wb-manager init my_coll`
+
+3) Run `wb-manager add my_coll <path/to/warc>`
+
+4) Add `config.yaml` in `my_archive`, perhaps with
+   ```
+      webarchiveplayer:
+         start_url: my_coll/http://example.com/
+         title: My Archive Demo
+   ```
+
+5) Now, when WebArchivePlayer is started in `my_archive`, it will use the WARC in `my_coll` and load `http://localhost:8090/my_coll/http://example.com/` as the starting URL.
+
+6) The `my_archive` dir can be distributed as a standlone archive and player.
+
+
+
 ### Building GUI Binaries
 
 The binaries can be built by running the builds scripts from the `app` directory:
@@ -96,6 +153,12 @@ build-windows.bat
 
 
 ### Changelist
+
+#### 1.2.0
+
+Custom preset archive support with custom `config.yaml`
+Use HTML for main window rendering
+Switch to pywb 0.10.9 for more rewriting improvements
 
 #### 1.1.4
 
