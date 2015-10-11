@@ -89,7 +89,7 @@ template_packages:
 
         pagelist = self.update_cdx(self.cdx_file, archivefiles)
 
-        config = self._load_config()
+        config = self._load_dynamic_config()
         config['_pagelist'] = pagelist
 
         config['_archivefiles'] = archivefiles
@@ -121,26 +121,21 @@ template_packages:
         self.path_index.write('\n'.join(path_index_lines))
         self.path_index.flush()
 
-    def _load_config(self):
-        config_file = os.environ.get('PYWB_CONFIG_FILE', './config.yaml')
-        try:
-            with open(config_file) as fh:
-                contents = fh.read()
-        except:
-            contents = self.DEFAULT_CONFIG_FILE
+    def _load_dynamic_config(self):
+        def filter_func(contents):
+            archive_path = self.path_index.name
 
-        #archive_dir = os.path.dirname(self.archivefile) + os.path.sep
-        archive_path = self.path_index.name
+            contents = contents.format(index_paths=self.cdx_file.name,
+                                       archive_path=archive_path,
+                                       coll_name=self.coll_name)
 
-        contents = contents.format(index_paths=self.cdx_file.name,
-                                   archive_path=archive_path,
-                                   coll_name=self.coll_name)
+            return contents
 
-        print('pywb config')
-        print('===========')
-        print(contents)
 
-        return yaml.load(contents)
+        return load_config(default_config=self.DEFAULT_CONFIG_FILE,
+                           filter_func=filter_func)
+
+
 
     def update_cdx(self, output_cdx, inputs):
         """
@@ -249,39 +244,14 @@ class TopFrame(wxFrame):
 
         self.html.SetPage(contents)
 
+        # set later
+        self.archiveplayer = None
+
     def on_load_url(self, evt):
         info = evt.GetLinkInfo()
         href = info.GetHref()
-        wx.LaunchDefaultBrowser(href)
-
-    def init_controls2(self):
-        self.menu_bar  = wx.MenuBar()
-        self.help_menu = wx.Menu()
-
-        #self.help_menu.Append(wx.ID_ABOUT,   menuTitle_about)
-        self.help_menu.Append(wx.ID_EXIT,   "&QUIT")
-        self.menu_bar.Append(self.help_menu, "File")
-
-        #self.Bind(wx.EVT_MENU, self.displayAboutMenu, id=wx.ID_ABOUT)
-        self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
-        self.SetMenuBar(self.menu_bar)
-
-        self.title = wx.StaticText(self, label='Web Archive Player ' + __version__)
-        #self.title = wx.StaticText(self, label=str(os.getcwd()))
-        font = wx.Font(20, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        self.title.SetFont(font)
-
-        pywb_info = wx.StaticText(self, label='(pywb {0})'.format(pywb_version), pos=(4, 20))
-        font = wx.Font(14, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        pywb_info.SetFont(font)
-
-        label = wx.StaticText(self, label='Archive Player Server running at:', pos=(4, 50))
-        link = wx.HyperlinkCtrl(self, id=0, label=PLAYER_URL, url=PLAYER_URL, pos=(4, 70))
-
-        info_label = wx.StaticText(self, label='For more info about Web Archive Player, please visit:', pos=(4, 100))
-        info_link = wx.HyperlinkCtrl(self, id=0, label=INFO_URL, url=INFO_URL, pos=(4, 120))
-
-        self.archiveplayer = None
+        #wx.LaunchDefaultBrowser(href)
+        webbrowser.open(href)
 
     def quit(self, cmd):
         self.Close()
@@ -320,17 +290,24 @@ def ensure_close(archiveplayer):
 
 
 #=================================================================
-def load_static_config():
+def load_config(default_config=None, format_func=None):
+    default_config = default_config or {}
+
+    if os.path.isdir('./archive'):
+        os.chdir('./archive')
+
     config_file = os.environ.get('PYWB_CONFIG_FILE', './config.yaml')
     try:
         with open(config_file) as fh:
             contents = fh.read()
-    except Exception as e:
-        return {}
+    except:
+        return default_config
 
     print('pywb config')
     print('===========')
-    print(contents)
+
+    if format_func:
+        contents = format_func(contents)
 
     config = yaml.load(contents)
 
@@ -368,7 +345,7 @@ def main():
     if not no_wx:
         app = wx.App()
 
-        static_config = load_static_config()
+        static_config = load_config()
 
         player_config = static_config.get('webarchiveplayer', {})
         size = (int(player_config.get('width', 400)), int(player_config.get('height', 200)))
@@ -388,7 +365,7 @@ def main():
 
         frame.init_controls(contents, title)
     else:
-        static_config = load_static_config()
+        static_config = load_config()
 
 
     # ignore this and continue loading with warcs specified by user
@@ -398,7 +375,11 @@ def main():
 
     if static_config:
         archiveplayer = StaticPywbApp(static_config)
-        start_url = PLAYER_URL + static_config.get('webarchiveplayer', {}).get('start_url', '')
+        start_url = static_config.get('webarchiveplayer', {}).get('start_url', '')
+        if start_url == 'none':
+            start_url = None
+        else:
+            start_url = PLAYER_URL + start_url
 
     else:
         if r.archivefiles:
@@ -432,12 +413,14 @@ def main():
         server.daemon = True
         server.start()
 
-        webbrowser.open(start_url)
+        if start_url:
+            webbrowser.open(start_url)
 
         frame.Show()
         app.MainLoop()
     else:
-        webbrowser.open(start_url)
+        if start_url:
+            webbrowser.open(start_url)
         run_server(archiveplayer.application)
 
 
