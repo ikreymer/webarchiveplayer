@@ -122,7 +122,7 @@ template_packages:
         self.path_index.flush()
 
     def _load_dynamic_config(self):
-        def filter_func(contents):
+        def format_func(contents):
             archive_path = self.path_index.name
 
             contents = contents.format(index_paths=self.cdx_file.name,
@@ -133,7 +133,7 @@ template_packages:
 
 
         return load_config(default_config=self.DEFAULT_CONFIG_FILE,
-                           filter_func=filter_func)
+                           format_func=format_func)
 
 
 
@@ -291,8 +291,6 @@ def ensure_close(archiveplayer):
 
 #=================================================================
 def load_config(default_config=None, format_func=None):
-    default_config = default_config or {}
-
     if os.path.isdir('./archive'):
         os.chdir('./archive')
 
@@ -301,7 +299,10 @@ def load_config(default_config=None, format_func=None):
         with open(config_file) as fh:
             contents = fh.read()
     except:
-        return default_config
+        contents = default_config
+
+    if not contents:
+        return {}
 
     print('pywb config')
     print('===========')
