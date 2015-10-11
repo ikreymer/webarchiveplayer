@@ -218,11 +218,11 @@ class TopFrame(wxFrame):
         self.menu_bar  = wx.MenuBar()
         self.help_menu = wx.Menu()
 
-        #self.help_menu.Append(wx.ID_ABOUT,   menuTitle_about)
         self.help_menu.Append(wx.ID_EXIT,   "&QUIT")
-        self.menu_bar.Append(self.help_menu, "File")
 
-        #self.Bind(wx.EVT_MENU, self.displayAboutMenu, id=wx.ID_ABOUT)
+        if wx.Platform != "__WXMAC__":
+            self.menu_bar.Append(self.help_menu, "File")
+
         self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
         self.SetMenuBar(self.menu_bar)
 
