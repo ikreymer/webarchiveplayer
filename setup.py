@@ -32,7 +32,7 @@ setup(
         'archiveplayer': ['templates/*'],
         },
     install_requires=[
-        'pywb==0.10.9',
+        'pywb==0.10.9.1',
         'waitress',
         #forcing this due to incompatibility between pyinstaller and later versions of requests
         'requests==2.5.1',
