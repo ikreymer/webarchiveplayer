@@ -291,10 +291,10 @@ def ensure_close(archiveplayer):
 
 #=================================================================
 def load_config(default_config=None, format_func=None):
-    if os.path.isdir('./archive'):
-        os.chdir('./archive')
+    if os.path.isdir('archive'):
+        os.chdir('archive')
 
-    config_file = os.environ.get('PYWB_CONFIG_FILE', './config.yaml')
+    config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
     try:
         with open(config_file) as fh:
             contents = fh.read()

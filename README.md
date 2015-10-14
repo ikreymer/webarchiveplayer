@@ -158,7 +158,7 @@ build-windows.bat
 
 Custom preset archive support with custom `config.yaml`
 Use HTML for main window rendering
-Switch to pywb 0.10.9 for more rewriting improvements
+Switch to pywb 0.10.9.1 for more rewriting improvements
 
 #### 1.1.4
 
