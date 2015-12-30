@@ -46,7 +46,7 @@ class PageDetectWriterMixin(object):
         metadata['num_urls'] = self.count
 
     def write(self, entry, filename):
-        if entry.record.rec_type in ('response', 'revisit'):
+        if entry.record.rec_type in ('response', 'revisit', 'resource'):
             self.count = self.count + 1
 
         if entry.record.rec_type == 'request':
@@ -64,7 +64,13 @@ class PageDetectWriterMixin(object):
 
         # if not guessing, just pass to super
         if self.is_guessing:
-            if (entry['mime'] in ('text/html', 'text/plain')  and
+            # explicitly add all resource records (for now)
+            if entry.record.rec_type == 'resource':
+                if (entry['mime'] in ('text/html', 'text/plain') and
+                    entry['digest'] != self.EMPTY_DIGEST):
+                    self.pages.append(dict(url=entry['url'], ts=entry['timestamp']))
+
+            elif (entry['mime'] in ('text/html', 'text/plain')  and
                 entry['status'] == '200' and
                 entry['digest'] != self.EMPTY_DIGEST):
 
