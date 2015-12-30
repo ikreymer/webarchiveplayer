@@ -13,6 +13,10 @@ fi
 pip install pyinstaller
 pyinstaller --clean -y -F -w webarchiveplayer.py
 
+# set the version in Info.plist manually
+version=$(python -c 'import archiveplayer.version; print(archiveplayer.version.__version__)')
+sed -i'' -e "s/0.0.0/$version/g" ./dist/webarchiveplayer.app/Contents/Info.plist
+
 mkdir osx
 rm osx/webarchiveplayer.dmg
 
