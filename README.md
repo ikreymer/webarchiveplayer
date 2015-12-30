@@ -158,6 +158,7 @@ build-windows.bat
 
 Support multiple instances by picking a random port if 8090 is not available
 Ensure HTML 'resource' records are included in page list
+Display error dialog before quitting if unable to read and index WARC/ARCs.
 Switch to pywb 0.11.1, many improvements in indexing and replay
 
 #### 1.2.0

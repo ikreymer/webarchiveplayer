@@ -95,7 +95,7 @@ template_packages:
             if no_wx:
                 sys.stderr.write(msg + '\n')
             else:
-                dlg = wx.MessageDialog(None, msg, "Error Reading Web Archive File(s)", style=wx.OK)
+                dlg = wx.MessageDialog(None, msg, "Error Reading Web Archive File(s)", style=wx.OK | wx.ICON_ERROR)
                 dlg.ShowModal()
             sys.exit(1)
 
