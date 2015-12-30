@@ -88,7 +88,16 @@ template_packages:
         self.path_index = tempfile.NamedTemporaryFile(delete=False,
                                                       suffix='.txt')
 
-        pagelist = self.update_cdx(self.cdx_file, archivefiles)
+        try:
+            pagelist = self.update_cdx(self.cdx_file, archivefiles)
+        except Exception as e:
+            msg = "WebArchivePlayer is unable to read the input file(s) and will quit.\n\nDetails: " + str(e)[:255]
+            if no_wx:
+                sys.stderr.write(msg + '\n')
+            else:
+                dlg = wx.MessageDialog(None, msg, "Error Reading Web Archive File(s)", style=wx.OK)
+                dlg.ShowModal()
+            sys.exit(1)
 
         config = self._load_dynamic_config()
         config['_pagelist'] = pagelist
