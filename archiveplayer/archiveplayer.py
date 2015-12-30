@@ -36,12 +36,13 @@ except:
     no_wx = True
     wxFrame = object
 
-from waitress import serve
+import waitress.server
+import socket
+
 
 #=================================================================
 PORT = 8090
-PLAYER_URL_TEMP = 'http://localhost:{0}/'
-PLAYER_URL = 'http://localhost:8090/'
+PLAYER_URL = 'http://localhost:{0}/'
 
 PYWB_URL = 'https://github.com/ikreymer/pywb'
 
@@ -214,7 +215,7 @@ DEFAULT_HTML_PAGE = """
 
 #=================================================================
 class TopFrame(wxFrame):
-    def init_controls(self, contents=None, title=None):
+    def init_controls(self, contents=None, title=None, player_url=PLAYER_URL):
         self.menu_bar  = wx.MenuBar()
         self.help_menu = wx.Menu()
 
@@ -239,7 +240,7 @@ class TopFrame(wxFrame):
 
         contents = contents.format(version=__version__,
                                    pywb_version=pywb_version,
-                                   player_url=PLAYER_URL,
+                                   player_url=player_url,
                                    info_url=INFO_URL)
 
         self.html.SetPage(contents)
@@ -277,9 +278,31 @@ class TopFrame(wxFrame):
 
 
 #=================================================================
-def run_server(app):
-    serve(app, port=PORT, threads=10)
-    #start_wsgi_server(archiveplayer.application, 'Wayback')
+class WaitressServer(object):
+    def __init__(self, app):
+        port = PORT
+        if port != 0 and not self.is_open(port):
+            port = 0
+
+        self.server = self._do_create(app, port)
+        self.port = self.server.socket.getsockname()[1]
+
+    def is_open(self, port):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.bind(('0.0.0.0', port))
+            sock.close()
+            is_open = True
+        except Exception as e:
+            is_open = False
+
+        return is_open
+
+    def _do_create(self, app, port):
+        return waitress.server.create_server(app, port=port, threads=10)
+
+    def __call__(self):
+        self.server.run()
 
 
 #=================================================================
@@ -317,9 +340,11 @@ def load_config(default_config=None, format_func=None):
 
 #=================================================================
 def main():
+    global PORT
+
     parser = ArgumentParser('Web Archive Player')
     parser.add_argument('archivefiles', nargs='*')
-    parser.add_argument('--port', nargs='?', default=8090, type=int)
+    parser.add_argument('--port', nargs='?', default=PORT, type=int)
     parser.add_argument('-v', '--version', action='store_true')
     parser.add_argument('--headless', action='store_true',
                         help="Run without a GUI (defaults to true if wxPython not installed)")
@@ -330,13 +355,9 @@ def main():
         print(__version__)
         sys.exit(0)
 
-    global PORT
     PORT = r.port
 
     global PLAYER_URL_TEMP
-    global PLAYER_URL
-    PLAYER_URL = PLAYER_URL_TEMP.format(PORT)
-
     frame = None
 
     global no_wx
@@ -364,7 +385,6 @@ def main():
             except:
                 contents = None
 
-        frame.init_controls(contents, title)
     else:
         static_config = load_config()
 
@@ -406,13 +426,17 @@ def main():
 
         start_url = PLAYER_URL
 
+    # Create Server
+    server = WaitressServer(archiveplayer.application)
+    start_url = start_url.format(server.port)
 
     if frame:
+        frame.init_controls(contents, title, start_url)
         frame.archiveplayer = archiveplayer
 
-        server = Thread(target=run_server, args=(archiveplayer.application,))
-        server.daemon = True
-        server.start()
+        server_thread = Thread(target=server)
+        server_thread.daemon = True
+        server_thread.start()
 
         if start_url:
             webbrowser.open(start_url)
@@ -422,7 +446,7 @@ def main():
     else:
         if start_url:
             webbrowser.open(start_url)
-        run_server(archiveplayer.application)
+        server()
 
 
 if __name__ == "__main__":
