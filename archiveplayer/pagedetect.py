@@ -35,7 +35,7 @@ class PageDetectWriterMixin(object):
         if parts[0].endswith('/robots.txt'):
             return
 
-        self.pages.append(dict(url=url, ts=ts))
+        self.pages.append(dict(url=url, timestamp=ts))
 
     def update_metadata(self, metadata, max_pages=500):
         if len(self.pages) >= max_pages:
@@ -54,9 +54,9 @@ class PageDetectWriterMixin(object):
 
         # if warcinfo is first, attempt to extract page info
         if entry.record.rec_type == 'warcinfo':
-            #if self.count == 0:
-            #    if self.parse_page_info(entry):
-            #        self.is_guessing = False
+            if self.count == 0:
+                if self.parse_page_info(entry):
+                    self.is_guessing = False
             return
 
         elif entry.record.content_type == 'application/warc-fields':
@@ -68,7 +68,7 @@ class PageDetectWriterMixin(object):
             if entry.record.rec_type == 'resource':
                 if (entry['mime'] in ('text/html', 'text/plain') and
                     entry['digest'] != self.EMPTY_DIGEST):
-                    self.pages.append(dict(url=entry['url'], ts=entry['timestamp']))
+                    self.pages.append(dict(url=entry['url'], timestamp=entry['timestamp']))
 
             elif (entry['mime'] in ('text/html', 'text/plain')  and
                 entry['status'] == '200' and
@@ -85,10 +85,10 @@ class PageDetectWriterMixin(object):
         super(PageDetectWriterMixin, self).write(entry, filename)
 
     def parse_page_info(self, entry):
-        if (entry.record.content_type != 'application/warc-fields'):
-            return False
+        #if (entry.record.content_type != 'application/warc-fields'):
+        #    return False
 
-        metadata = self.extract_metadata(entry.warcinfo)
+        metadata = self.extract_metadata(entry['_warcinfo'])
         if not metadata:
             return False
 
@@ -98,6 +98,7 @@ class PageDetectWriterMixin(object):
 
     @staticmethod
     def extract_metadata(buff):
+        buff = buff.decode('utf-8')
         for line in buff.split('\n'):
             parts = line.split(': ', 1)
             if parts[0] != 'json-metadata':
@@ -108,10 +109,10 @@ class PageDetectWriterMixin(object):
                 return metadata
             except Exception as exc:
                 import traceback
-                err_details = traceback.format_exc(exc)
-                print err_details
+                err_details = traceback.format_exc()
+                print(err_details)
 
-                print 'error parsing metadata: ', parts[1]
+                print('error parsing metadata: ', parts[1])
                 continue
 
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-python -c "import wx; print wx.__file__" > /dev/null 2>&1
+python -c "import wx; print(wx.__file__)" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "wxPython is not installed. Can't build GUI binary"
     if [ -n $VIRTUAL_ENV ]; then

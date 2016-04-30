@@ -29,7 +29,7 @@ input[type=text] {
 <ol>
 {% for page in pagelist %}
 <li>
-<a href="{{ prefix + page.ts }}/{{ page.url }}" title="{{ page.url }}">{{ page.title if page.title else page.url }}</a>
+<a href="{{ prefix + page.timestamp if page.timestamp else page.ts }}/{{ page.url }}" title="{{ page.url }}">{{ page.title if page.title else page.url }}</a>
 </li>
 {% endfor %}
 </ol>

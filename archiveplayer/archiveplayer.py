@@ -7,8 +7,8 @@ from pywb.webapp.handlers import WBHandler
 
 from pywb import __version__ as pywb_version
 
-from pagedetect import PageDetectSortedWriter
-from version import __version__, INFO_URL
+from archiveplayer.pagedetect import PageDetectSortedWriter
+from archiveplayer.version import __version__, INFO_URL
 
 import os
 import shutil
@@ -128,7 +128,7 @@ template_packages:
                             for f in self.archivefiles]
 
         path_index_lines = sorted(path_index_lines)
-        self.path_index.write('\n'.join(path_index_lines))
+        self.path_index.write('\n'.join(path_index_lines).encode('utf-8'))
         self.path_index.flush()
 
     def _load_dynamic_config(self):
@@ -328,7 +328,7 @@ def load_config(default_config=None, format_func=None):
 
     config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
     try:
-        with open(config_file) as fh:
+        with open(config_file, 'rb') as fh:
             contents = fh.read()
     except:
         contents = default_config
