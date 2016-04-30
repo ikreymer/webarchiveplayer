@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from pywb.framework.wsgi_wrappers import init_app # start_wsgi_server
 from pywb.webapp.pywb_init import create_wb_router
 
@@ -424,8 +426,6 @@ def main():
                 return
 
             filenames = frame.select_file()
-            if filenames:
-                filenames = map(lambda x: x.encode('utf-8'), filenames)
 
         if not filenames:
             return
