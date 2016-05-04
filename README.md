@@ -1,4 +1,4 @@
-# WebArchivePlayer 1.4.0
+# WebArchivePlayer 1.4.1
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
 
@@ -153,6 +153,11 @@ build-windows.bat
 
 
 ### Changelist
+
+#### 1.4.1
+
+Update to pywb 0.30.1
+Support reading of WARC files with non-HTTP response records (which are skipped).
 
 #### 1.4.0
 
