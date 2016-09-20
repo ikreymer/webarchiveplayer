@@ -1,4 +1,4 @@
-# WebArchivePlayer 1.4.1
+# WebArchivePlayer 1.4.5
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
 
