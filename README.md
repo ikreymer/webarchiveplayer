@@ -154,6 +154,11 @@ build-windows.bat
 
 ### Changelist
 
+#### 1.4.5
+
+Update to pywb 0.32.1
+Support Webrecorder collection WARCs, read pages/bookmarks from all `warcinfo` records
+
 #### 1.4.1
 
 Update to pywb 0.30.1

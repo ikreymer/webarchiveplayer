@@ -54,9 +54,8 @@ class PageDetectWriterMixin(object):
 
         # if warcinfo is first, attempt to extract page info
         if entry.record.rec_type == 'warcinfo':
-            if self.count == 0:
-                if self.parse_page_info(entry):
-                    self.is_guessing = False
+            if self.parse_page_info(entry):
+                self.is_guessing = False
             return
 
         elif entry.record.content_type == 'application/warc-fields':
