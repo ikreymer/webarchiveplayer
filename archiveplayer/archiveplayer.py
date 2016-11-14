@@ -17,6 +17,7 @@ import shutil
 import sys
 import yaml
 import tempfile
+import pprint
 
 from multiprocessing import Process
 from threading import Thread
@@ -103,8 +104,8 @@ template_packages:
 
         config = self._load_dynamic_config()
         config['_pagelist'] = pagelist
-
         config['_archivefiles'] = archivefiles
+
         self.write_path_index()
         self.application = init_app(create_wb_router,
                                     load_yaml=False,
@@ -143,11 +144,8 @@ template_packages:
 
             return contents
 
-
         return load_config(default_config=self.DEFAULT_CONFIG_FILE,
                            format_func=format_func)
-
-
 
     def update_cdx(self, output_cdx, inputs):
         """
@@ -328,23 +326,38 @@ def load_config(default_config=None, format_func=None):
     if os.path.isdir('archive'):
         os.chdir('archive')
 
+    if default_config:
+        if format_func:
+            default_config = format_func(default_config)
+
+        default_config = yaml.load(default_config)
+    else:
+        default_config = {}
+
     config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
     try:
-        with open(config_file, 'rb') as fh:
+        with open(config_file, 'rt') as fh:
             contents = fh.read()
-    except:
-        contents = default_config
 
-    if not contents:
-        return {}
+    except Exception as e:
+        contents = ''
+
+    if contents:
+        if format_func:
+            contents = format_func(contents)
+
+        config = yaml.load(contents)
+        if default_config:
+            default_config.update(config)
+            config = default_config
+
+    else:
+        config = default_config
 
     print('pywb config')
     print('===========')
 
-    if format_func:
-        contents = format_func(contents)
-
-    config = yaml.load(contents)
+    pprint.pprint(config)
 
     return config
 
@@ -378,9 +391,10 @@ def main():
     if not no_wx:
         app = wx.App()
 
+        # needs to happen after app init to get correct working dir
         static_config = load_config()
-
         player_config = static_config.get('webarchiveplayer', {})
+
         size = (int(player_config.get('width', 400)), int(player_config.get('height', 200)))
 
         frame = TopFrame(None, size=size)
@@ -395,26 +409,36 @@ def main():
                     contents = fh.read()
             except:
                 contents = None
-
     else:
         static_config = load_config()
+        player_config = static_config.get('webarchiveplayer', {})
 
+    auto_load_dir = None
 
     # ignore this and continue loading with warcs specified by user
     if static_config:
-        if static_config.get('webarchiveplayer', {}).get('select_user_warcs', False):
+        auto_load_dir = player_config.get('auto_load_dir')
+        if auto_load_dir:
             static_config = None
 
     if static_config:
         archiveplayer = StaticPywbApp(static_config)
-        start_url = static_config.get('webarchiveplayer', {}).get('start_url', '')
+        start_url = player_config.get('start_url', '')
         if start_url == 'none':
             start_url = None
         else:
             start_url = PLAYER_URL + start_url
 
     else:
-        if r.archivefiles:
+        if auto_load_dir:
+            print('Loading User Warcs from: ' + auto_load_dir)
+            filenames = []
+            for filename in os.listdir(auto_load_dir):
+                if filename.endswith(('.warc', '.warc.gz', '.arc', '.arc.gz')):
+                    filenames.append(os.path.join(auto_load_dir, filename))
+                    print('Archive File Found: ' + filename)
+
+        elif r.archivefiles:
             filenames = r.archivefiles
         else:
             if no_wx:
