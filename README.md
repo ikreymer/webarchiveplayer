@@ -154,6 +154,13 @@ build-windows.bat
 
 ### Changelist
 
+#### 1.4.6
+
+Update to pywb 0.33.1
+Support for ``auto_load_dir`` option in ``config.yaml`` (or ``archive/config.yaml``) which specifies a directory
+from which to automatically load WARCs on startup.
+
+
 #### 1.4.5
 
 Update to pywb 0.32.1
