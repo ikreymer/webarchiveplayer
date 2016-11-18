@@ -1,4 +1,4 @@
-# WebArchivePlayer 1.4.6
+# WebArchivePlayer 1.4.7
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
 
@@ -185,6 +185,10 @@ build-windows.bat
 
 
 ### Changelist
+
+#### 1.4.7
+
+Ensure config file as desc HTML are read as utf-8
 
 #### 1.4.6
 
