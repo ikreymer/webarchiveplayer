@@ -336,8 +336,9 @@ def load_config(default_config=None, format_func=None):
 
     config_file = os.environ.get('PYWB_CONFIG_FILE', 'config.yaml')
     try:
-        with open(config_file, 'rt') as fh:
+        with open(config_file, 'rb') as fh:
             contents = fh.read()
+            contents = contents.decode('utf-8')
 
     except Exception as e:
         contents = ''
@@ -405,8 +406,9 @@ def main():
 
         if desc_html_file:
             try:
-                with open(desc_html_file) as fh:
+                with open(desc_html_file, 'rb') as fh:
                     contents = fh.read()
+                    contents = contents.decode('utf-8')
             except:
                 contents = None
     else:

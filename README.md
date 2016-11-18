@@ -1,4 +1,4 @@
-# WebArchivePlayer 1.4.5
+# WebArchivePlayer 1.4.7
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
 
@@ -106,10 +106,42 @@ webarchiveplayer:
 
    # Load custom contents from local HTML
    desc_html: ./desc.html
+   
+   # Auto-load WARCs from specified directory (supported from 1.4.6)
+   auto_load_dir: ./warcs/
 ```
 
 For example, one could distribute a WARC together with the player and provide a custom setup.
+This includes automatically indexing WARCs on load to allow quick drop in, or configuring a multi-collection archive.
 
+#### Auto-Load WARCs
+
+With version 1.4.6, webarchiveplayer supports indexing WARCs automatically from a designated directory.
+Archive files are indexed on each load to allow for dropping or updating the files more easily.
+
+To setup, all that's needed is a `config.yaml` with the following:
+   ```
+      webarchiveplayer:
+          auto_load_dir: ./warcs
+          
+          title: 'My Archive'
+          desc_html: ./desc_page.html
+   ```
+
+If WebArchivePlayer is placed in the same directory as the `config.yaml` and `warcs` directory,
+the player will automatically load and index all WARC/ARC files found in this directory.
+
+Optionally, the `config.yaml` and `warcs` may also be placed in an `archive` sub-directory.
+This allows for an archive to be more easily transported (eg. as a tar-ball or zip file).
+
+The last two params allow for customizing the WebArchivePlayer window.
+The `title` param specifies the window title, while the `desc_html` param specifies
+the contents of the WebArchivePlayer window.
+
+#### Create multi-collection archive
+
+The following steps describe creating static archive with preset collections
+and indexed archive files:
 
 1) Create new directory `my_archive` and switch to it.
 
@@ -153,6 +185,10 @@ build-windows.bat
 
 
 ### Changelist
+
+#### 1.4.7
+
+Ensure config file as desc HTML are read as utf-8
 
 #### 1.4.6
 
