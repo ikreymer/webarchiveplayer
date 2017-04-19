@@ -1,3 +1,8 @@
+**Please note: this project is no longer being actively developed.**
+
+**Please use the new [Webrecorder Player](http://github.com/webrecorder/webrecorderplayer-electron) app, [available for download here](http://github.com/webrecorder/webrecorderplayer-electron/releases/latest). The Webrecorder Player will receive regular feature updates in sync with https://webrecorder.io/**
+
+
 # WebArchivePlayer 1.4.7
 
 WebArchivePlayer is a new desktop tool which provides a simple point-and-click wrapper for viewing any web archive file (in [WARC](http://en.wikipedia.org/wiki/Web_ARChive) and ARC format).
