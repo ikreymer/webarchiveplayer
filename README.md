@@ -1,6 +1,6 @@
 **Please note: this project is no longer being actively developed.**
 
-**Please use the new [Webrecorder Player](http://github.com/webrecorder/webrecorderplayer-electron) app, [available for download here](http://github.com/webrecorder/webrecorderplayer-electron/releases/latest). The Webrecorder Player will receive regular feature updates in sync with https://webrecorder.io/**
+**Please use [https://replayweb.page](https://replayweb.page) browser based viewer or the [ReplayWeb.page App](https://github.com/webrecorder/replayweb.page/releases/latest). More info [about replayweb.page](https://webrecorder.net/replaywebpage)
 
 
 # WebArchivePlayer 1.4.7
