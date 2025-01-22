@@ -1,6 +1,6 @@
 **Please note: this project is no longer being actively developed.**
 
-**Please use [https://replayweb.page](https://replayweb.page) browser based viewer or the [ReplayWeb.page App](https://github.com/webrecorder/replayweb.page/releases/latest). More info [about replayweb.page](https://webrecorder.net/replaywebpage)
+**Please use [https://replayweb.page](https://replayweb.page) browser based viewer or the [ReplayWeb.page App](https://github.com/webrecorder/replayweb.page/releases/latest). More info [about replayweb.page](https://webrecorder.net/replaywebpage)**
 
 
 # WebArchivePlayer 1.4.7
